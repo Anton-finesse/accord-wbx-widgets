@@ -110,6 +110,9 @@ template.innerHTML = `
       flex-direction: column;
       align-items: center;
     }
+    #audio-horse {
+      display: none; /* Скрыть аудиоэлемент */ 
+    }
   </style>
   <div class="container">
     <audio id="audio-horse" src="https://www.w3schools.com/html/horse.mp3" controls></audio>
