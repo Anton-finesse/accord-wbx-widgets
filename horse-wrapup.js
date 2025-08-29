@@ -1,5 +1,4 @@
 import { Desktop } from '@wxcc-desktop/sdk';
-//import '@momentum-ui/web-components';
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -14,7 +13,7 @@ template.innerHTML = `
     }
   </style>
   <div class="container">
-    <md-audio id="audio-horse" src="https://www.w3schools.com/html/horse.mp3" controls></md-audio>
+    <audio id="audio-horse" src="https://www.w3schools.com/html/horse.mp3" controls></audio>
   </div>
 `;
 
