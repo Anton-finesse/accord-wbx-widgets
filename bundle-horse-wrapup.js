@@ -149,6 +149,10 @@ class MomentumAudioWidget extends HTMLElement {
     _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', (msg) => {
       logger.info('eAgentWrapup', JSON.stringify(msg));
         this.audioEl.play();
+        setTimeout(() => {
+            this.audioEl.play();
+          }, 
+          1000);
     });    
     _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentContactWrappedUp', (msg) => {
       logger.info('eAgentContactWrappedUp', JSON.stringify(msg));
