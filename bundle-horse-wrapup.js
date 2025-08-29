@@ -127,19 +127,33 @@ class MomentumAudioWidget extends HTMLElement {
   }
 
   connectedCallback() {
-    this.audioEl = this.shadowRoot.getElementById('audio-horse');
-    _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', (msg) => {
-      logger.info('myAgentWrapup', JSON.stringify(msg));
-      this.audioEl.play();
-      //if (this.audioEl) {
-      //  this.audioEl.play();
-      //}
-    });
+    this.init();
+    this.subscribeAgentContactDataEvents();
+    this.getAgentInfo
   }
 
   disconnectedCallback() {
     _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.removeAllEventListeners();
   }
+
+  async init() {
+    // Initiating desktop config
+    _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.config.init();
+    this.audioEl = this.shadowRoot.getElementById('audio-horse');
+  }
+
+  subscribeAgentContactDataEvents() {
+    _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', (msg) => {
+      logger.info('eAgentWrapup', JSON.stringify(msg));
+        this.audioEl.play();
+    });    
+  }
+
+  getAgentInfo() {
+    const latestData = _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentStateInfo.latestData;
+    logger.info('myLatestData', latestData);
+  }
+
 }
 customElements.define('horse-wrapup', MomentumAudioWidget);
 })();
