@@ -110,9 +110,7 @@ template.innerHTML = `
       flex-direction: column;
       align-items: center;
     }
-    #audio-horse {
-      display: none; /* Скрыть аудиоэлемент */ 
-    }
+   
   </style>
   <div class="container">
     <audio id="audio-horse" src="https://www.w3schools.com/html/horse.mp3" controls></audio>
@@ -148,7 +146,7 @@ class MomentumAudioWidget extends HTMLElement {
   subscribeAgentContactDataEvents() {
     _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', (msg) => {
       logger.info('eAgentWrapup', JSON.stringify(msg));
-        this.audioEl.play();
+        //this.audioEl.play();
         setTimeout(() => {
             this.audioEl.play();
           }, 
