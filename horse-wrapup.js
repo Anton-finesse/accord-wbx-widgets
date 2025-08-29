@@ -14,9 +14,12 @@ template.innerHTML = `
     }
   </style>
   <div class="container">
-    <md-audio id="audio" src="https://www.w3schools.com/html/horse.mp3" controls></md-audio>
+    <md-audio id="audio-horse" src="https://www.w3schools.com/html/horse.mp3" controls></md-audio>
   </div>
 `;
+
+//Creating a custom logger
+const logger = Desktop.logger.createLogger('horse-wrapup-logger');
 
 class MomentumAudioWidget extends HTMLElement {
   constructor() {
@@ -26,11 +29,13 @@ class MomentumAudioWidget extends HTMLElement {
   }
 
   connectedCallback() {
-    this.audioEl = this.shadowRoot.getElementById('audio');
-    Desktop.agentContact.addEventListener('eAgentWrapup', () => {
-      if (this.audioEl) {
-        this.audioEl.play();
-      }
+    this.audioEl = this.shadowRoot.getElementById('audio-horse');
+    Desktop.agentContact.addEventListener('eAgentWrapup', (msg) => {
+      logger.info('myAgentWrapup', JSON.stringify(msg));
+      this.audioEl.play();
+      //if (this.audioEl) {
+      //  this.audioEl.play();
+      //}
     });
   }
 
@@ -38,3 +43,4 @@ class MomentumAudioWidget extends HTMLElement {
     Desktop.agentContact.removeAllEventListeners();
   }
 }
+customElements.define('horse-wrapup', MomentumAudioWidget);
