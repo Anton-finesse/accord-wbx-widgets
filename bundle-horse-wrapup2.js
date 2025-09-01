@@ -163,7 +163,7 @@ template.innerHTML = `
     </label>
     <span class="toggle-label">Beep</span>
   </div>
-  <audio id="audio-horse" preload ="auto" src="https://accord-wbxcc.github.io/accord-wbx-widgets/beep_airport.wav"></audio>
+  <audio id="audio-horse" preload ="auto" src="https://www.w3schools.com/html/horse.mp3"></audio>
 `;
 
 const logger = _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.logger.createLogger('horse-wrapup-logger');
