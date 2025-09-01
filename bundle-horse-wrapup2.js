@@ -179,7 +179,6 @@ class HorseWrapupWidget extends HTMLElement {
   connectedCallback() {
     this.init();
     this.subscribeAgentContactDataEvents();
-    this.getAgentInfo();
   }
 
   disconnectedCallback() {
@@ -194,22 +193,23 @@ class HorseWrapupWidget extends HTMLElement {
     this.toggleEl.checked = false;
     this.toggleEl.addEventListener('change', () => {
       this.audioEnabled = this.toggleEl.checked;
+        logger.info('Audio Enabled switched to:', this.audioEnabled);
     });
   }
 
-  subscribeAgentContactDataEvents() {
-    _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', () => {
-      logger.info('eAgentWrapup');
-      if (this.audioEnabled) {
-                  this.audioEl.play();
-        }
-      })
+subscribeAgentContactDataEvents() {
+  _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', async () => {
+    logger.info('eAgentWrapup');
+    if (this.audioEnabled) {
+      try {
+        await this.audioEl.play();
+      } catch (err) {
+        logger.error('audio play error', err);
+      }
     }
+  });
+}
 
-    getAgentInfo() {
-      const latestData = _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentStateInfo.latestData;
-      logger.info('myLatestData', latestData);
-    }
 }
 
 customElements.define('horse-wrapup', HorseWrapupWidget);
