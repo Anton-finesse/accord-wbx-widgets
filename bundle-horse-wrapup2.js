@@ -217,7 +217,8 @@ class HorseWrapupWidget extends HTMLElement {
 
  if (!this.audioBuffer) {
     // Загружаем и декодируем ТОЛЬКО один раз
-    const response = await fetch("https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg");
+    //const response = await fetch("https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg");
+    const response = await fetch("https://accord-wbxcc.github.io/accord-wbx-widgets/bugle_tune_aport.wav");
     const arrayBuffer = await response.arrayBuffer();
     this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
     logger.info('Audio buffer preloaded');
