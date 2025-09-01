@@ -249,9 +249,6 @@ class HorseWrapupWidget extends HTMLElement {
     _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', async () => {
       logger.info('eAgentWrapup');
       this.playBeep();
-      setTimeout(() => {
-        console.log("Delayed for 1 second.");
-      }, 1000);
     });
   }
 }
