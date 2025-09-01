@@ -174,6 +174,8 @@ class HorseWrapupWidget extends HTMLElement {
     // Web Audio API
     this.audioCtx = null;
     this.audioBuffer = null;
+    this.bgSource = null;
+    this.bgGain = null;
   }
 
   connectedCallback() {
@@ -198,7 +200,7 @@ class HorseWrapupWidget extends HTMLElement {
       if (this.audioEnabled) {
         try {
           await this.unlockAudio();
-          logger.info('Audio unlocked and loaded');
+          logger.info('Audio unlocked and buffer loaded');
         } catch (err) {
           logger.error('Failed to unlock audio', err);
         }
@@ -211,43 +213,55 @@ class HorseWrapupWidget extends HTMLElement {
       this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
 
-  if (this.audioCtx.state === 'suspended') {
-    await this.audioCtx.resume();
-  }
-
-
-    if (!this.audioBuffer) {
-      //const response = await fetch("https://accord-wbxcc.github.io/accord-wbx-widgets/beep_airport.wav");
-      const response = await fetch("https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg");
-      
-      const arrayBuffer = await response.arrayBuffer();
-      this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
+    if (this.audioCtx.state === 'suspended') {
+      await this.audioCtx.resume();
     }
 
-    // пробуем включить/выключить, чтобы браузер «разрешил» контекст
-    const source = this.audioCtx.createBufferSource();
-    source.buffer = this.audioBuffer;
-    source.connect(this.audioCtx.destination);
-    source.start(0);
-    //source.stop(this.audioCtx.currentTime + 0.01); // мгновенно останавливаем
+    if (!this.audioBuffer) {
+      const response = await fetch("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+      const arrayBuffer = await response.arrayBuffer();
+      this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
+      logger.info('Audio buffer loaded', this.audioBuffer);
+
+      // Создаём зацикленный фон для удержания AudioContext активным
+      this.bgGain = this.audioCtx.createGain();
+      this.bgGain.gain.value = 0; // тихо
+      this.bgGain.connect(this.audioCtx.destination);
+
+      this.bgSource = this.audioCtx.createBufferSource();
+      this.bgSource.buffer = this.audioBuffer;
+      this.bgSource.loop = true;
+      this.bgSource.connect(this.bgGain);
+      this.bgSource.start();
+      logger.info('Background loop started to keep AudioContext active');
+    }
   }
 
   playBeep() {
-    if (!this.audioEnabled || !this.audioBuffer || !this.audioCtx) return;
+    if (!this.audioEnabled || !this.audioBuffer || !this.audioCtx) {
+      logger.warn('playBeep skipped: not ready');
+      return;
+    }
 
-  if (this.audioCtx.state === 'suspended') {
-    this.audioCtx.resume(); // на всякий случай
-  }
+    if (this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume();
+    }
 
+    // Новый источник для мгновенного beep
     const source = this.audioCtx.createBufferSource();
     source.buffer = this.audioBuffer;
-    source.connect(this.audioCtx.destination);
+
+    const gainNode = this.audioCtx.createGain();
+    gainNode.gain.value = 1; // громкость
+    source.connect(gainNode).connect(this.audioCtx.destination);
     source.start(0);
+
+    logger.info('Beep played instantly at', this.audioCtx.currentTime);
   }
 
   subscribeAgentContactDataEvents() {
     _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', async () => {
-      logger.info('eAgentWrapup');
+      logger.info('eAgentWrapup event received');
       this.playBeep();
     });
   }
