@@ -99,6 +99,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__);
 
 
+const template = document.createElement('template');
+
 template.innerHTML = `
   <style>
     .toggle-container {
