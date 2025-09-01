@@ -171,7 +171,6 @@ class HorseWrapupWidget extends HTMLElement {
     this.shadowRoot.appendChild(template.content.cloneNode(true));
     this.audioEnabled = false;
 
-    // Web Audio API
     this.audioCtx = null;
     this.audioBuffer = null;
     this.bgSource = null;
@@ -208,7 +207,8 @@ class HorseWrapupWidget extends HTMLElement {
     });
   }
 
-  async unlockAudio() {
+  // гарантируем, что AudioBuffer готов
+  async ensureAudioBuffer() {
     if (!this.audioCtx) {
       this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
@@ -221,33 +221,39 @@ class HorseWrapupWidget extends HTMLElement {
       const response = await fetch("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
       const arrayBuffer = await response.arrayBuffer();
       this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
-      logger.info('Audio buffer loaded', this.audioBuffer);
+      logger.info('Audio buffer loaded');
 
-      // Создаём зацикленный фон для удержания AudioContext активным
-      this.bgGain = this.audioCtx.createGain();
-      this.bgGain.gain.value = 0; // тихо
-      this.bgGain.connect(this.audioCtx.destination);
+      // создаём фоновый зацикленный источник, чтобы контекст оставался активным
+      if (!this.bgSource) {
+        this.bgGain = this.audioCtx.createGain();
+        this.bgGain.gain.value = 0; // тихо
+        this.bgGain.connect(this.audioCtx.destination);
 
-      this.bgSource = this.audioCtx.createBufferSource();
-      this.bgSource.buffer = this.audioBuffer;
-      this.bgSource.loop = true;
-      this.bgSource.connect(this.bgGain);
-      this.bgSource.start();
-      logger.info('Background loop started to keep AudioContext active');
+        this.bgSource = this.audioCtx.createBufferSource();
+        this.bgSource.buffer = this.audioBuffer;
+        this.bgSource.loop = true;
+        this.bgSource.connect(this.bgGain);
+        this.bgSource.start();
+        logger.info('Background loop started to keep AudioContext active');
+      }
     }
+
+    return this.audioBuffer;
   }
 
-  playBeep() {
-    if (!this.audioEnabled || !this.audioBuffer || !this.audioCtx) {
-      logger.warn('playBeep skipped: not ready');
+  async unlockAudio() {
+    await this.ensureAudioBuffer();
+  }
+
+  async playBeep() {
+    if (!this.audioEnabled) {
+      logger.warn('playBeep skipped: audio disabled');
       return;
     }
 
-    if (this.audioCtx.state === 'suspended') {
-      this.audioCtx.resume();
-    }
+    await this.ensureAudioBuffer();
 
-    // Новый источник для мгновенного beep
+    // создаём новый источник для мгновенного beep
     const source = this.audioCtx.createBufferSource();
     source.buffer = this.audioBuffer;
 
