@@ -218,7 +218,7 @@ class HorseWrapupWidget extends HTMLElement {
     }
 
     if (!this.audioBuffer) {
-      const response = await fetch("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+      const response = await fetch("https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg");
       const arrayBuffer = await response.arrayBuffer();
       this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
       logger.info('Audio buffer loaded');
