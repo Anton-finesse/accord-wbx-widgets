@@ -215,15 +215,6 @@ class HorseWrapupWidget extends HTMLElement {
     await this.audioCtx.resume();
   }
 
-/*
-    if (!this.audioBuffer) {
-      const response = await fetch("https://accord-wbxcc.github.io/accord-wbx-widgets/beep_airport.wav");
-      const response = await fetch("https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg");
-      
-      const arrayBuffer = await response.arrayBuffer();
-      this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
-    }
-*/
  if (!this.audioBuffer) {
     // Загружаем и декодируем ТОЛЬКО один раз
     const response = await fetch("https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg");
@@ -259,6 +250,12 @@ class HorseWrapupWidget extends HTMLElement {
       logger.info('eAgentWrapup');
       this.playBeep();
     });
+
+_wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentOfferContact', async () => {
+      logger.info('eAgentOfferContact');
+      this.playBeep();
+    });
+
   }
 }
 
