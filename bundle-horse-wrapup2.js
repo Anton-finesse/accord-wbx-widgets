@@ -211,8 +211,15 @@ class HorseWrapupWidget extends HTMLElement {
       this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
 
+  if (this.audioCtx.state === 'suspended') {
+    await this.audioCtx.resume();
+  }
+
+
     if (!this.audioBuffer) {
-      const response = await fetch("https://accord-wbxcc.github.io/accord-wbx-widgets/beep_airport.wav");
+      //const response = await fetch("https://accord-wbxcc.github.io/accord-wbx-widgets/beep_airport.wav");
+      const response = await fetch("https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg");
+      
       const arrayBuffer = await response.arrayBuffer();
       this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
     }
@@ -222,11 +229,15 @@ class HorseWrapupWidget extends HTMLElement {
     source.buffer = this.audioBuffer;
     source.connect(this.audioCtx.destination);
     source.start(0);
-    source.stop(this.audioCtx.currentTime + 0.01); // мгновенно останавливаем
+    //source.stop(this.audioCtx.currentTime + 0.01); // мгновенно останавливаем
   }
 
   playBeep() {
     if (!this.audioEnabled || !this.audioBuffer || !this.audioCtx) return;
+
+  if (this.audioCtx.state === 'suspended') {
+    this.audioCtx.resume(); // на всякий случай
+  }
 
     const source = this.audioCtx.createBufferSource();
     source.buffer = this.audioBuffer;
