@@ -152,9 +152,6 @@ template.innerHTML = `
       color: #222;
       user-select: none;
     }
-    #audio-horse {
-      display: none;
-    }
   </style>
   <div class="toggle-container">
     <label class="switch">
@@ -163,7 +160,6 @@ template.innerHTML = `
     </label>
     <span class="toggle-label">Beep</span>
   </div>
-  <audio id="audio-horse" preload ="auto" src="https://www.w3schools.com/html/horse.mp3"></audio>
 `;
 
 const logger = _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.logger.createLogger('horse-wrapup-logger');
@@ -174,6 +170,10 @@ class HorseWrapupWidget extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.appendChild(template.content.cloneNode(true));
     this.audioEnabled = false;
+
+    // Web Audio API
+    this.audioCtx = null;
+    this.audioBuffer = null;
   }
 
   connectedCallback() {
@@ -186,39 +186,64 @@ class HorseWrapupWidget extends HTMLElement {
   }
 
   async init() {
-    // Initiating desktop config
     _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.config.init();
-    this.audioEl = this.shadowRoot.getElementById('audio-horse');
+
     this.toggleEl = this.shadowRoot.getElementById('audio-toggle');
     this.toggleEl.checked = false;
+
     this.toggleEl.addEventListener('change', async () => {
       this.audioEnabled = this.toggleEl.checked;
-        logger.info('Audio Enabled switched to:', this.audioEnabled);
-        if (this.audioEnabled) {
-          try {
-            await this.audioEl.play();
-            this.audioEl.pause();
-            this.audioEl.currentTime = 0;
-          } catch (err) {
-            logger.error('audio play error', err);
-          }
-    }
-  });
+      logger.info('Audio Enabled switched to:', this.audioEnabled);
+
+      if (this.audioEnabled) {
+        try {
+          await this.unlockAudio();
+          logger.info('Audio unlocked and loaded');
+        } catch (err) {
+          logger.error('Failed to unlock audio', err);
+        }
+      }
+    });
   }
 
-subscribeAgentContactDataEvents() {
-  _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', async () => {
-    logger.info('eAgentWrapup');
-    if (this.audioEnabled) {
-      this.audioEl.currentTime = 0;
-      this.audioEl.play().catch(err => logger.error('audio play error', err));
+  async unlockAudio() {
+    if (!this.audioCtx) {
+      this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
-  });
-}
 
+    if (!this.audioBuffer) {
+      const response = await fetch("https://accord-wbxcc.github.io/accord-wbx-widgets/beep_airport.wav");
+      const arrayBuffer = await response.arrayBuffer();
+      this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
+    }
+
+    // пробуем включить/выключить, чтобы браузер «разрешил» контекст
+    const source = this.audioCtx.createBufferSource();
+    source.buffer = this.audioBuffer;
+    source.connect(this.audioCtx.destination);
+    source.start(0);
+    source.stop(this.audioCtx.currentTime + 0.01); // мгновенно останавливаем
+  }
+
+  playBeep() {
+    if (!this.audioEnabled || !this.audioBuffer || !this.audioCtx) return;
+
+    const source = this.audioCtx.createBufferSource();
+    source.buffer = this.audioBuffer;
+    source.connect(this.audioCtx.destination);
+    source.start(0);
+  }
+
+  subscribeAgentContactDataEvents() {
+    _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', async () => {
+      logger.info('eAgentWrapup');
+      this.playBeep();
+    });
+  }
 }
 
 customElements.define('horse-wrapup', HorseWrapupWidget);
+
 })();
 
 /******/ })()
