@@ -196,7 +196,7 @@ class HorseWrapupWidget extends HTMLElement {
         logger.info('Audio Enabled switched to:', this.audioEnabled);
         if (this.audioEnabled) {
           try {
-            this.audioEl.play();
+            await this.audioEl.play();
             this.audioEl.pause();
             this.audioEl.currentTime = 0;
           } catch (err) {
@@ -210,11 +210,8 @@ subscribeAgentContactDataEvents() {
   _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', async () => {
     logger.info('eAgentWrapup');
     if (this.audioEnabled) {
-      try {
-        this.audioEl.play();
-      } catch (err) {
-        logger.error('audio play error', err);
-      }
+      this.audioEl.currentTime = 0;
+      this.audioEl.play().catch(err => logger.error('audio play error', err));
     }
   });
 }
