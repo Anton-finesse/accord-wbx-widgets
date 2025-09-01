@@ -163,7 +163,7 @@ template.innerHTML = `
     </label>
     <span class="toggle-label">Beep</span>
   </div>
-  <audio id="audio-horse" src="https://accord-wbxcc.github.io/accord-wbx-widgets/beep_airport.wav"></audio>
+  <audio id="audio-horse" preload ="auto" src="https://accord-wbxcc.github.io/accord-wbx-widgets/beep_airport.wav"></audio>
 `;
 
 const logger = _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.logger.createLogger('horse-wrapup-logger');
@@ -191,10 +191,19 @@ class HorseWrapupWidget extends HTMLElement {
     this.audioEl = this.shadowRoot.getElementById('audio-horse');
     this.toggleEl = this.shadowRoot.getElementById('audio-toggle');
     this.toggleEl.checked = false;
-    this.toggleEl.addEventListener('change', () => {
+    this.toggleEl.addEventListener('change', async () => {
       this.audioEnabled = this.toggleEl.checked;
         logger.info('Audio Enabled switched to:', this.audioEnabled);
-    });
+        if (this.audioEnabled) {
+          try {
+            this.audioEl.play();
+            this.audioEl.pause();
+            this.audioEl.currentTime = 0;
+          } catch (err) {
+            logger.error('audio play error', err);
+          }
+    }
+  });
   }
 
 subscribeAgentContactDataEvents() {
@@ -202,7 +211,7 @@ subscribeAgentContactDataEvents() {
     logger.info('eAgentWrapup');
     if (this.audioEnabled) {
       try {
-        await this.audioEl.play();
+        this.audioEl.play();
       } catch (err) {
         logger.error('audio play error', err);
       }
