@@ -107,7 +107,7 @@ __webpack_require__.r(__webpack_exports__);
  * This is version 3, with improved audio context handling using (!) audio buffer caching.
  */
 
-const hornTemplate = document.createElement('HornTemplate');
+const hornTemplate = document.createElement('template');
 
 hornTemplate.innerHTML = `
   <style>
