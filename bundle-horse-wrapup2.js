@@ -238,7 +238,7 @@ class HornWrapupWidget extends HTMLElement {
 
   if (!this.audioBuffer) {
     //const response = await fetch("https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg");
-    const response = await fetch("https://accord-wbxcc.github.io/accord-wbx-widgets/bugle_tune_aport.wav");
+    const response = await fetch("https://accord-wbxcc.github.io/accord-wbx-widgets/bulletin_ios_7.wav");
     const arrayBuffer = await response.arrayBuffer();
     this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
     logger.info('Audio buffer preloaded');
@@ -272,7 +272,7 @@ class HornWrapupWidget extends HTMLElement {
   }
 }
 
-customElements.define('horne-wrapup', HornWrapupWidget);
+customElements.define('horn-wrapup', HornWrapupWidget);
 
 })();
 
