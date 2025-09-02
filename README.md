@@ -9,5 +9,4 @@
             "audioPath": "path to the bell audio file"
           }
         }
-    ]
-} 
+    ]} 
