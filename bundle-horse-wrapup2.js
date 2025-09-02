@@ -109,7 +109,7 @@ __webpack_require__.r(__webpack_exports__);
 
 const hornToggle = document.createElement('hornToggleTemplate');
 
-hornTemplate.innerHTML = `
+hornToggle.innerHTML = `
   <style>
     .toggle-container {
       display: flex;
