@@ -105,6 +105,7 @@ __webpack_require__.r(__webpack_exports__);
  * User must enable audio by toggling the switch first.
  * 
  * This is version 3, with improved audio context handling using (!) audio buffer caching.
+ * Property "audioPath" is added to set the audio file path in the LAB layout json.
  */
 
 const hornToggle = document.createElement('template');
@@ -237,8 +238,8 @@ class HornWrapupWidget extends HTMLElement {
   }
 
   if (!this.audioBuffer) {
-    //const response = await fetch("https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg");
-    const response = await fetch("https://accord-wbxcc.github.io/accord-wbx-widgets/bulletin_ios_7.wav");
+    // this.audioPath - Widget's property set in the LAB layout json
+    const response = await fetch(this.audioPath);
     const arrayBuffer = await response.arrayBuffer();
     this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
     logger.info('Audio buffer preloaded');
@@ -247,7 +248,7 @@ class HornWrapupWidget extends HTMLElement {
     source.buffer = this.audioBuffer;
     source.connect(this.audioCtx.destination);
     source.start(0);
-    //source.stop(this.audioCtx.currentTime + 0.01); // play and stop immediately
+    source.stop(this.audioCtx.currentTime + 0.01); // play and stop immediately
   }
 
   async playBeep() {
