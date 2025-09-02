@@ -107,7 +107,7 @@ __webpack_require__.r(__webpack_exports__);
  * This is version 3, with improved audio context handling using (!) audio buffer caching.
  */
 
-const hornTemplate = document.createElement('template');
+const hornToggle = document.createElement('hornToggleTemplate');
 
 hornTemplate.innerHTML = `
   <style>
@@ -176,7 +176,7 @@ class HornWrapupWidget extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot.appendChild(template.content.cloneNode(true));
+    this.shadowRoot.appendChild(hornToggle.content.cloneNode(true));
     this.audioEnabled = false;
 
     // Web Audio API
