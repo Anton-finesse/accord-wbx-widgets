@@ -104,7 +104,7 @@ __webpack_require__.r(__webpack_exports__);
  * Uses Web Audio API to ensure sound plays even if the tab is not focused.
  * User must enable audio by toggling the switch first.
  * 
- * This is version 3, with improved audio context handling using (!) audio buffer caching.
+ * This is version 0.3, with improved audio context handling using (!) audio buffer caching.
  * Property "audioPath" is added to set the audio file path in the LAB layout json.
  */
 
@@ -167,7 +167,7 @@ hornToggle.innerHTML = `
       <input type="checkbox" id="audio-toggle">
       <span class="slider"></span>
     </label>
-    <span class="toggle-label">Beep</span>
+    <span class="toggle-label" id="toggle-bell-label">Bell</span>
   </div>
 `;
 
@@ -196,6 +196,7 @@ class WrapupBellWidget extends HTMLElement {
 
   async init() {
     _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.config.init();
+
     this.mapToggleChange();
     logger.debug('Property autioPath:', this.audioPath);
   }
@@ -208,6 +209,8 @@ class WrapupBellWidget extends HTMLElement {
   mapToggleChange() {
     this.toggleEl = this.shadowRoot.getElementById('audio-toggle');
     this.toggleEl.checked = false;
+    const labelEl = this.shadowRoot.getElementById('toggle-bell-label');
+    labelEl.textContent = this.toggleLabel || 'Bell'; // default label if not set
 
     this.toggleEl.addEventListener('change', async () => {
       this.audioEnabled = this.toggleEl.checked;
