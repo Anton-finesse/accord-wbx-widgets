@@ -3,7 +3,7 @@
     "area": {
       "advancedHeader": [
         {
-          "comp": "bell-wrapup",
+          "comp": "wrapup-bell",
           "script": "path to the webcomponent wrapup-bell",
           "properties": {
             "audioPath": "path to the bell audio file"
