@@ -99,9 +99,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__);
 
 
-const template = document.createElement('template');
+/**
+ * Widget that plays a beep sound on eAgentWrapup event.
+ * Uses Web Audio API to ensure sound plays even if the tab is not focused.
+ * User must enable audio by toggling the switch first.
+ * 
+ * This is version 3, with improved audio context handling using (!) audio buffer caching.
+ */
 
-template.innerHTML = `
+const hornTemplate = document.createElement('HornTemplate');
+
+hornTemplate.innerHTML = `
   <style>
     .toggle-container {
       display: flex;
@@ -162,9 +170,9 @@ template.innerHTML = `
   </div>
 `;
 
-const logger = _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.logger.createLogger('horse-wrapup-logger');
+const logger = _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.logger.createLogger('horn-wrapup-logger');
 
-class HorseWrapupWidget extends HTMLElement {
+class HornWrapupWidget extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -187,7 +195,16 @@ class HorseWrapupWidget extends HTMLElement {
 
   async init() {
     _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.config.init();
+    this.mapToggleChange();
+    logger.debug('Property autioPath:', this.audioPath);
+  }
 
+  /** 
+   * map the toggle switch and its change event to enable/disable audio 
+   * unlock audio context on first user interaction
+   */
+
+  mapToggleChange() {
     this.toggleEl = this.shadowRoot.getElementById('audio-toggle');
     this.toggleEl.checked = false;
 
@@ -204,63 +221,58 @@ class HorseWrapupWidget extends HTMLElement {
         }
       }
     });
-  }
+  }  
 
+  /**
+   * Unlocks the audio context on user interaction and preloads the audio buffer.
+   */
   async unlockAudio() {
     if (!this.audioCtx) {
       this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
-
+  
+    // if audio context is suspended, resume it
   if (this.audioCtx.state === 'suspended') {
     await this.audioCtx.resume();
   }
 
- if (!this.audioBuffer) {
-    // Загружаем и декодируем ТОЛЬКО один раз
+  if (!this.audioBuffer) {
     //const response = await fetch("https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg");
     const response = await fetch("https://accord-wbxcc.github.io/accord-wbx-widgets/bugle_tune_aport.wav");
     const arrayBuffer = await response.arrayBuffer();
     this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
     logger.info('Audio buffer preloaded');
-  }
-
-
-    // пробуем включить/выключить, чтобы браузер «разрешил» контекст
+    }
     const source = this.audioCtx.createBufferSource();
     source.buffer = this.audioBuffer;
     source.connect(this.audioCtx.destination);
     source.start(0);
-    //source.stop(this.audioCtx.currentTime + 0.01); // мгновенно останавливаем
+    //source.stop(this.audioCtx.currentTime + 0.01); // play and stop immediately
   }
 
-  playBeep() {
-    if (!this.audioEnabled || !this.audioBuffer || !this.audioCtx) return;
-
-  if (this.audioCtx.state === 'suspended') {
-    this.audioCtx.resume(); // на всякий случай
-  }
-
+  async playBeep() {
+      if (!this.audioEnabled || !this.audioBuffer || !this.audioCtx) 
+          return;
+      // if audio context is suspended, resume it
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume(); 
+      }
+    // play the beep sound from the cached buffer
     const source = this.audioCtx.createBufferSource();
     source.buffer = this.audioBuffer;
     source.connect(this.audioCtx.destination);
     source.start(0);
   }
-
+  // subscribe to eAgentWrapup event and play beep on event as PlayBeep function
   subscribeAgentContactDataEvents() {
     _wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentWrapup', async () => {
       logger.info('eAgentWrapup');
-      this.playBeep();
+      await this.playBeep();
     });
-
-_wxcc_desktop_sdk__WEBPACK_IMPORTED_MODULE_0__.Desktop.agentContact.addEventListener('eAgentOfferContact', async () => {
-      logger.info('eAgentOfferContact');
-      this.playBeep();
-    });
-
   }
 }
 
-customElements.define('horse-wrapup', HorseWrapupWidget);
+customElements.define('horne-wrapup', HornWrapupWidget);
 
 })();
 
